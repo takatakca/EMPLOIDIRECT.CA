@@ -251,7 +251,7 @@ export function createApp({ store = createStore(), production = process.env.NODE
   });
   app.use('/api', (_req, res) => badRequest(res, 'Point d’accès introuvable.', 404));
   if (serveFrontend) {
-    app.use(express.static(path.join(rootDir, 'dist'), { maxAge: production ? '1h' : 0, index: true }));
+    app.use(express.static(path.join(rootDir, 'dist'), { maxAge: production ? '1h' : 0, index: 'index.html' }));
     app.get('*', (_req, res) => res.sendFile(path.join(rootDir, 'dist', 'index.html')));
   }
   // Never leak stack traces to visitors.
