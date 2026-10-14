@@ -1,0 +1,21 @@
+export type Job = {
+  id: string;
+  employerId?: string;
+  title: string;
+  company: string;
+  location: string;
+  category: string;
+  type: string;
+  mode: string;
+  description: string;
+  tags: string[];
+  salaryMin: number | null;
+  salaryMax: number | null;
+  status: 'draft' | 'published';
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string | null;
+};
+export type Account = { id: string; name: string; email: string; company: string; approved: boolean };
+export type Application = { id: string; jobId: string; name: string; email: string; message: string; resumeUrl: string; createdAt: string };
+export type FormJob = Pick<Job, 'title' | 'location' | 'category' | 'type' | 'mode' | 'description' | 'salaryMin' | 'salaryMax' | 'tags'>;

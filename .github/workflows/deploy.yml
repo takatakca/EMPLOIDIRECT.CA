@@ -1,0 +1,84 @@
+name: Deploy EMPLOIDIRECT to MochaHost
+on:
+  workflow_run:
+    workflows: ['CI']
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: emploidirect-production
+  cancel-in-progress: false
+jobs:
+  deploy:
+    if: >-
+      ${{
+        github.event_name == 'workflow_dispatch' ||
+        (github.event.workflow_run.conclusion == 'success' &&
+         github.event.workflow_run.event == 'push' &&
+         github.event.workflow_run.head_branch == 'main')
+      }}
+    runs-on: ubuntu-latest
+    env:
+      HOST: ${{ vars.EMPLOIDIRECT_PRODUCTION_HOST }}
+      PORT: ${{ vars.EMPLOIDIRECT_PRODUCTION_PORT }}
+      USER: ${{ vars.EMPLOIDIRECT_PRODUCTION_USER }}
+      APP_ROOT: ${{ vars.EMPLOIDIRECT_PRODUCTION_APP_ROOT }}
+      URL: ${{ vars.EMPLOIDIRECT_PRODUCTION_URL }}
+    steps:
+      - name: Validate deployment prerequisites
+        id: ready
+        env:
+          PRIVATE_KEY: ${{ secrets.EMPLOIDIRECT_SSH_PRIVATE_KEY }}
+          KNOWN_HOSTS: ${{ secrets.EMPLOIDIRECT_KNOWN_HOSTS }}
+        run: |
+          if [[ -z "$HOST" || -z "$USER" || -z "$APP_ROOT" || -z "$URL" || -z "$PRIVATE_KEY" || -z "$KNOWN_HOSTS" ]]; then
+            echo 'Production secrets/variables incomplete; skip deployment.'
+            echo 'run=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'run=true' >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.ready.outputs.run == 'true'
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/setup-node@v4
+        if: steps.ready.outputs.run == 'true'
+        with:
+          node-version: '22'
+      - name: Build and validate
+        if: steps.ready.outputs.run == 'true'
+        run: |
+          npm install --no-audit --no-fund
+          npm run check
+          npm prune --omit=dev
+      - name: Prepare secure SSH transport
+        if: steps.ready.outputs.run == 'true'
+        env:
+          PRIVATE_KEY: ${{ secrets.EMPLOIDIRECT_SSH_PRIVATE_KEY }}
+          KNOWN_HOSTS: ${{ secrets.EMPLOIDIRECT_KNOWN_HOSTS }}
+        run: |
+          umask 077
+          mkdir -p ~/.ssh
+          printf '%s\n' "$PRIVATE_KEY" > ~/.ssh/id_ed25519
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+      - name: Upload compiled app and restart Passenger
+        if: steps.ready.outputs.run == 'true'
+        run: |
+          SSH_PORT="${PORT:-22}"
+          ssh -i ~/.ssh/id_ed25519 -p "$SSH_PORT" -o StrictHostKeyChecking=yes "$USER@$HOST" "mkdir -p '$APP_ROOT/tmp'"
+          mkdir -p release
+          cp -R dist server node_modules release/
+          cp package.json package-lock.json release/
+          rsync -az -e "ssh -i ~/.ssh/id_ed25519 -p $SSH_PORT -o StrictHostKeyChecking=yes" \
+            --exclude='.git/' --exclude='.github/' --exclude='.data/' --exclude='.env' --exclude='tmp/' \
+            --exclude='README.md' --exclude='docs/' --exclude='src/' --exclude='tests/' --exclude='scripts/' \
+            --exclude='node_modules/.cache/' \
+            release/ "$USER@$HOST:$APP_ROOT/"
+          ssh -i ~/.ssh/id_ed25519 -p "$SSH_PORT" -o StrictHostKeyChecking=yes "$USER@$HOST" "mkdir -p '$APP_ROOT/tmp' && touch '$APP_ROOT/tmp/restart.txt'"
+      - name: Verify HTTPS health
+        if: steps.ready.outputs.run == 'true'
+        run: |
+          sleep 8
+          curl --fail --silent --show-error --retry 4 --retry-delay 4 --max-time 15 --proto '=https' --tlsv1.2 "$URL/api/health" | grep -q '"ok":true'
+          echo 'Production health endpoint healthy.'
