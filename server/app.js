@@ -18,7 +18,7 @@ const safeText = (value, max, min = 1) => {
 };
 
 /** Configure APP_ORIGIN in production (e.g. https://emploidirect.ca). */
-export function createApp({ store = createStore(), production = process.env.NODE_ENV === 'production', origin = process.env.APP_ORIGIN, serveFrontend = true } = {}) {
+export function createApp({ store = createStore(), production = process.env.NODE_ENV === 'production', origin = process.env.APP_ORIGIN, previewReadOnly = process.env.PREVIEW_READ_ONLY === 'true', serveFrontend = true } = {}) {
   const app = express();
   app.disable('x-powered-by');
   if (process.env.TRUST_PROXY === 'true') app.set('trust proxy', 1);
@@ -35,6 +35,7 @@ export function createApp({ store = createStore(), production = process.env.NODE
   // Cross-origin POST/PUT/PATCH/DELETE requests are blocked (cookies are SameSite=Lax too).
   app.use('/api', (req, res, next) => {
     if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
+    if (previewReadOnly) return badRequest(res, 'Mode aperçu : actions désactivées.', 503);
     const requestOrigin = req.get('origin');
     if (production && !origin) return badRequest(res, 'APP_ORIGIN doit être configuré.', 503);
     if (requestOrigin && origin && requestOrigin !== origin) return badRequest(res, 'Origine non autorisée.', 403);

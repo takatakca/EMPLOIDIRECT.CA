@@ -80,3 +80,14 @@ test('retention removes old applications on maintenance write', async t => {
   await store.update(() => {});
   assert.equal((await store.read()).applications.length, 0);
 });
+
+
+test('read-only preview blocks writes while keeping job search available', async t => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'emploidirect-preview-test-'));
+  const server = await new Promise(resolve => { const http = createApp({ store: createStore(dir), production: false, previewReadOnly: true, serveFrontend: false }).listen(0, '127.0.0.1', () => resolve(http)); });
+  t.after(async () => { await new Promise(resolve => server.close(resolve)); await rm(dir, { recursive: true, force: true }); });
+  const url = `http://127.0.0.1:${server.address().port}`;
+  assert.equal((await fetch(url + '/api/jobs')).status, 200);
+  const response = await fetch(url + '/api/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+  assert.equal(response.status, 503);
+});

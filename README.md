@@ -59,6 +59,10 @@ Les candidatures ne déclenchent **pas encore de courriel**. L'employeur doit co
 - **Stockage v1** : fichier JSON atomique sur disque local, **un seul processus Node**. `DATA_DIR` doit être **persistant, sauvegardé et hors du répertoire public**. Pas adapté à un déploiement multi-instance ni aux très fortes charges : migrer vers PostgreSQL et des services métier centralisés avant la montée en puissance.
 - **Isolation** : les ressources sont indexées par propriétaire côté serveur. Ne pas confondre ce contrôle local avec une fédération d'identité TAKATAK déjà opérationnelle. L'intégration TAKATAK Auth/tenant-scoped API reste à construire.
 
+## Aperçu Render en lecture seule
+
+Une prévisualisation éventuelle peut être publiée sur Render avec `PREVIEW_READ_ONLY=true` (serveur) et `VITE_PREVIEW_ONLY=true` (build). Les écritures API sont alors refusées et le parcours employeur désactivé dans l'interface. **Ne jamais** permettre la saisie de candidatures sur une instance à stockage non persistant.
+
 ## Conditions de mise en production
 
 Le workflow CI exécute les validations, puis compile hors serveur. Le workflow de déploiement MochaHost s'active **uniquement** lorsque les secrets et variables attendus sont configurés ; il ne construit pas sur cPanel. Les étapes d'activation et les points bloquants sont décrits dans [docs/DEPLOIEMENT.md](docs/DEPLOIEMENT.md).
