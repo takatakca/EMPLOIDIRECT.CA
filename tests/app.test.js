@@ -91,3 +91,19 @@ test('read-only preview blocks writes while keeping job search available', async
   const response = await fetch(url + '/api/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
   assert.equal(response.status, 503);
 });
+
+
+test('serves the compiled frontend and SPA fallback', async t => {
+  const { store } = await setup(t);
+  const server = await new Promise(resolve => {
+    const http = createApp({ store, production: false, serveFrontend: true }).listen(0, '127.0.0.1', () => resolve(http));
+  });
+  t.after(() => new Promise(resolve => server.close(resolve)));
+  const base = `http://127.0.0.1:${server.address().port}`;
+  for (const target of ['/', '/employeur']) {
+    const response = await fetch(base + target);
+    assert.equal(response.status, 200);
+    const html = await response.text();
+    assert.ok(html.includes('<div id="root"></div>'));
+  }
+});
