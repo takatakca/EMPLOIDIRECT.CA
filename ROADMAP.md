@@ -44,3 +44,7 @@
 - Ajout de `server/postgres-store.js` (transactions SQL / verrou de ligne / rétention 180 jours), script d'import sous confirmation et test de transaction avec pool simulé.
 - En production hors aperçu, `DATABASE_URL` devient obligatoire; `/api/health` vérifie le magasin de données.
 - **Ne pas activer les candidatures** tant que PostgreSQL réel, authentification TAKATAK et conformité ne sont pas vérifiés. Le mode aperçu existant demeure lecture seule.
+
+- [x] Dockerfile multi-stage Node 22 pour Coolify/Contabo, avec build CI, non-root et healthcheck
+- [x] Le workflow MochaHost échoue explicitement quand les secrets/variables sont absents : un pipeline vert ne signifie plus un déploiement fictif
+- [ ] Provisionner PostgreSQL et associer le domaine final sur Coolify, puis vérifier le service réel
