@@ -70,3 +70,7 @@ Le workflow CI exécute les validations, puis compile hors serveur. Le workflow 
 ## Sécurité du démarrage
 
 En production, hors mode `PREVIEW_READ_ONLY`, l'application **refuse de démarrer sans `DATABASE_URL`**. `/api/health` vérifie réellement l'accès au stockage et renvoie HTTP 503 en cas d'indisponibilité. L'aperçu Render reste en lecture seule. Aucune base de données payante n'est automatiquement provisionnée.
+
+## Alternative Coolify / Contabo
+
+Un `Dockerfile` multi-stage compile et vérifie le projet en CI puis exécute Node 22 sous utilisateur non privilégié. Voir [docs/COOLIFY.md](docs/COOLIFY.md). Aucune instance Coolify n'est créée par GitHub seul. Le workflow MochaHost échoue maintenant explicitement lorsque les variables ou clés de livraison sont absentes : aucune réussite trompeuse.
