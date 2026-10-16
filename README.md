@@ -56,7 +56,7 @@ Les candidatures ne déclenchent **pas encore de courriel**. L'employeur doit co
 
 - **Client** : React 18 + TypeScript + Vite, interface responsive FR-CA.
 - **API** : Node.js 22 + Express, sessions opaques HTTP-only, hachage `scrypt`, protection d'origine et limitation de débit basique.
-- **Stockage v1** : fichier JSON atomique sur disque local, **un seul processus Node**. `DATA_DIR` doit être **persistant, sauvegardé et hors du répertoire public**. Pas adapté à un déploiement multi-instance ni aux très fortes charges : migrer vers PostgreSQL et des services métier centralisés avant la montée en puissance.
+- **Stockage** : PostgreSQL avec transactions/écritures sérialisées par verrou de ligne si `DATABASE_URL` est configuré (obligatoire pour la production non-preview). Stockage JSON local seulement pour développement et aperçu en lecture seule. L'adaptateur PostgreSQL v1 utilise encore une ligne JSONB unique et devra évoluer vers un schéma relationnel à grande échelle. Voir `docs/POSTGRESQL.md`.
 - **Isolation** : les ressources sont indexées par propriétaire côté serveur. Ne pas confondre ce contrôle local avec une fédération d'identité TAKATAK déjà opérationnelle. L'intégration TAKATAK Auth/tenant-scoped API reste à construire.
 
 ## Aperçu Render en lecture seule
@@ -66,3 +66,7 @@ Une prévisualisation éventuelle peut être publiée sur Render avec `PREVIEW_R
 ## Conditions de mise en production
 
 Le workflow CI exécute les validations, puis compile hors serveur. Le workflow de déploiement MochaHost s'active **uniquement** lorsque les secrets et variables attendus sont configurés ; il ne construit pas sur cPanel. Les étapes d'activation et les points bloquants sont décrits dans [docs/DEPLOIEMENT.md](docs/DEPLOIEMENT.md).
+
+## Sécurité du démarrage
+
+En production, hors mode `PREVIEW_READ_ONLY`, l'application **refuse de démarrer sans `DATABASE_URL`**. `/api/health` vérifie réellement l'accès au stockage et renvoie HTTP 503 en cas d'indisponibilité. L'aperçu Render reste en lecture seule. Aucune base de données payante n'est automatiquement provisionnée.

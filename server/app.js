@@ -27,6 +27,9 @@ export function createApp({ store = createStore(), production = process.env.NODE
     res.set('X-Content-Type-Options', 'nosniff');
     res.set('Referrer-Policy', 'strict-origin-when-cross-origin');
     res.set('X-Frame-Options', 'DENY');
+    res.set('Cross-Origin-Opener-Policy', 'same-origin');
+    res.set('Cross-Origin-Resource-Policy', 'same-origin');
+    res.set('X-Permitted-Cross-Domain-Policies', 'none');
     res.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
     if (production) res.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
     if (req.path.startsWith('/api/')) res.set('Cache-Control', 'no-store');
@@ -69,7 +72,15 @@ export function createApp({ store = createStore(), production = process.env.NODE
     try { req.account = await getAccount(req); if (!req.account) return badRequest(res, 'Connexion requise.', 401); next(); }
     catch (error) { next(error); }
   };
-  app.get('/api/health', (_req, res) => res.json({ ok: true, name: 'emploidirect', at: now() }));
+  app.get('/api/health', async (_req, res) => {
+    try {
+      await store.read();
+      res.json({ ok: true, name: 'emploidirect', at: now() });
+    } catch (error) {
+      console.error('[emploidirect] readiness failed', error);
+      res.status(503).json({ ok: false, name: 'emploidirect' });
+    }
+  });
   app.get('/api/meta', (_req, res) => res.json({ categories, types, modes }));
   app.get('/api/jobs', async (req, res, next) => {
     try {
