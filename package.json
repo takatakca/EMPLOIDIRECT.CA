@@ -3,20 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "concurrently -k \"node --watch server/index.js\" \"vite --host 0.0.0.0\"",
     "build": "tsc --noEmit && vite build",
     "start": "node server/index.js",
     "test": "node --test tests/*.test.js",
     "check": "npm run build && npm run test",
-    "approve:employer": "node scripts/approve-employer.js"
+    "approve:employer": "node scripts/approve-employer.js",
+    "import:postgres": "node scripts/import-json-to-postgres.js"
   },
   "dependencies": {
     "express": "^4.21.2",
     "lucide-react": "^0.468.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "pg": "^8.16.3"
   },
   "devDependencies": {
     "@types/react": "^18.3.18",

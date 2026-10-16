@@ -32,3 +32,7 @@ Le dépôt est compilé par **GitHub Actions**, jamais par le terminal cPanel. L
 - Une relance Passenger (cPanel) est demandée par la création de `tmp/restart.txt`. Vérifier que la configuration de l'application utilise ce mécanisme.
 - En cas d'incident, revenir au commit Git précédent via un nouveau déploiement. Sauvegarder séparément `DATA_DIR` avant toute restauration.
 - La base JSON exige une seule instance Node et un volume persistant. Ne pas activer des exécutions simultanées avant migration SQL.
+
+## Exigence PostgreSQL (mise à jour du 16 octobre 2026)
+
+Le serveur en production (hors `PREVIEW_READ_ONLY=true`) refuse désormais de démarrer sans `DATABASE_URL`. Suivre [POSTGRESQL.md](POSTGRESQL.md). Ne pas déployer de données de candidats dans le stockage JSON local ni installer de base payante sans décision explicite. Contrôler `/api/health` : HTTP 503 en cas de stockage indisponible. Le mode aperçu Render reste lecture seule.

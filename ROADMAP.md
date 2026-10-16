@@ -19,7 +19,9 @@
 
 - [ ] Contrôler et valider les coordonnées légales / politique de confidentialité / responsable de la protection des renseignements personnels (Québec, Loi 25)
 - [ ] Configuration des secrets d'hébergement, application Node et DNS/TLS pour `emploidirect.ca`
-- [ ] Déplacer les données vers PostgreSQL et mettre en place les sauvegardes, les migrations et la purge quotidienne vérifiable
+- [x] Ajouter le stockage PostgreSQL transactionnel (adaptateur compatible v1), import JSON protégé et contrôle de santé de la base
+- [ ] Configurer une base PostgreSQL persistante réelle, sauvegardes automatisées, restaurations testées et validation de purge
+- [ ] Migrer le stockage JSONB transactionnel vers un schéma relationnel pour l'échelle commerciale
 - [ ] Envoyer les notifications réelles aux employeurs et confirmations aux candidats (fournisseur courriel vérifié, consentements)
 - [ ] Réinitialisation de mot de passe sécurisée, vérification de courriel et protection anti-bot plus forte
 - [ ] Tableau d'administration pour vérification des employeurs et modération des offres, historique d'audit
@@ -36,3 +38,9 @@
 3. Corriger d'abord tout échec CI. Préserver l'isolation employeur et les données utilisateurs.
 4. Priorité : stockage SQL persistant, rétention automatique, vérification des comptes et conformité avant accueil du public.
 5. Consigner les modifications réalisées et les blocages restants ici à chaque reprise.
+
+## Reprise du 16 octobre 2026
+
+- Ajout de `server/postgres-store.js` (transactions SQL / verrou de ligne / rétention 180 jours), script d'import sous confirmation et test de transaction avec pool simulé.
+- En production hors aperçu, `DATABASE_URL` devient obligatoire; `/api/health` vérifie le magasin de données.
+- **Ne pas activer les candidatures** tant que PostgreSQL réel, authentification TAKATAK et conformité ne sont pas vérifiés. Le mode aperçu existant demeure lecture seule.
