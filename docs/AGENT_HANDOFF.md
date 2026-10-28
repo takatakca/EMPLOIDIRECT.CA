@@ -30,6 +30,9 @@ Dépôt : https://github.com/takatakca/EMPLOIDIRECT.CA
 - **2026-10-28 13:47 EDT — GPT-6 · session EMPLOIDIRECT — DÉBUT** : vérification directe GitHub : `main 4c64918`, CI réussie, workflow MochaHost échoué, #2/#3 déjà fusionnées, seulement les trois branches nommées plus haut. `AGENTS.md` et `docs/AGENT_HANDOFF.md` absents. Consultation du protocole Drive et recherche de note EMPLOIDIRECT non concluante. Choix : instaurer notes et poursuivre la validation de persistance sans activer les écritures en prévisualisation.
 - **2026-10-28 13:47 EDT — GPT-6 · session EMPLOIDIRECT — CHECKPOINT 1** : `AGENTS.md` créé sur `main`, commit `038b02e5560aba4f9d9e0c729267c4e0862496bc`. Ce document est le second checkpoint GitHub ; documenter chaque prochain SHA ci-dessous.
 
+- **2026-10-28 13:52 EDT — GPT-6 · session EMPLOIDIRECT — CHECKPOINT 2** : `docs/AGENT_HANDOFF.md` créé sur `main`, commit `e124435d539edb84e840e4f7838edc778a5cfb50`, CI verte. Note Drive créée dans `00 — Opérations TAKATAK/EMPLOIDIRECT.CA — Développement et relève` : https://docs.google.com/document/d/1RESUnY9uI_ETkAQ82BIdZ3CLGlQmN7bRabpYKTfTcro/edit. Render déclare ce commit `live` en preview ; ceci ne valide pas la production.
+- **2026-10-28 13:53 EDT — GPT-6 · session EMPLOIDIRECT — EN COURS** : création branche `test/postgres-integration-20261028` depuis `e124435`. Développement d'un test PostgreSQL réel en CI : concurrence multi-pool, rollback, rétention ; aucune base payante ni donnée réelle.
+
 ## Interdictions de conclusion trompeuse
 
 Ne jamais annoncer 100 %, lancement commercial, authentification TAKATAK opérationnelle, sauvegarde PostgreSQL réelle ou déploiement à `emploidirect.ca` sans preuves de bout en bout. Les blocages de secrets et de gestion DNS se résolvent dans la console autorisée, pas en inventant des valeurs.

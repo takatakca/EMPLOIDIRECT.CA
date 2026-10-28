@@ -38,3 +38,9 @@ DATABASE_URL='postgresql://...' node scripts/import-json-to-postgres.js /private
 - Mise en production SSL/DNS et contrôle HTTPS réel sur `emploidirect.ca`
 
 Le statut `ok:true` du healthcheck signifie que le magasin est accessible ; il ne remplace ni un audit de sécurité ni une vérification fonctionnelle de bout en bout.
+
+## Tests PostgreSQL réels en CI (28 octobre 2026)
+
+Le job `postgres-integration` exécute `tests/postgres-integration.test.js` contre un conteneur PostgreSQL 16 éphémère. Il vérifie les transactions concurrentes de **deux pools**, le verrouillage de ligne, le rollback et la purge de rétention. Le test refuse de s'exécuter sur tout nom de base autre que `emploidirect_ci` ou un hôte non local. Le mot de passe du job est exclusivement fictif, sans accès à la production.
+
+Ces tests ne prouvent pas les sauvegardes, restaurations ou la performance à grande échelle : les opérations de production restent interdites tant que ces points ne sont pas validés.
