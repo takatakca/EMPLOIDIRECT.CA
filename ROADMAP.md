@@ -48,3 +48,13 @@
 - [x] Dockerfile multi-stage Node 22 pour Coolify/Contabo, avec build CI, non-root et healthcheck
 - [x] Le workflow MochaHost échoue explicitement quand les secrets/variables sont absents : un pipeline vert ne signifie plus un déploiement fictif
 - [ ] Provisionner PostgreSQL et associer le domaine final sur Coolify, puis vérifier le service réel
+
+## Reprise du 28 octobre 2026 — GitHub / Drive
+
+- [x] Créer les règles permanentes `AGENTS.md` et le suivi `docs/AGENT_HANDOFF.md`, synchronisés avec le protocole TAKATAK Drive.
+- [x] Créer une note Drive EMPLOIDIRECT dédiée dans `00 — Opérations TAKATAK / EMPLOIDIRECT.CA — Développement et relève`, sans identifiant personnel dans GitHub.
+- [x] PR #4 : PostgreSQL 16 réel en CI (transactions multi-pool, rollback, rétention), Docker et application : trois jobs réussis. Code fusionné sur `main` : `5f7a0b63ca61ecc4f4f7263e409266ff3bb03bc7`.
+- [x] Faire échouer le démarrage commercial sans `APP_ORIGIN` HTTPS canonique. Le preview lecture seule demeure compatible.
+- [ ] Obtenir et configurer les variables/secrets de production MochaHost **ou** choisir une seule cible Coolify ; le workflow MochaHost signale correctement l'absence des prérequis.
+- [ ] Vérifier l'état de la CI sur le dernier SHA de `main`, puis Render après tout commit de documentation.
+- [ ] Fournir PostgreSQL persistant, des sauvegardes et un test de restauration avant toute candidature réelle.
